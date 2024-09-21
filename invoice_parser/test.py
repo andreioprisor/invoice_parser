@@ -4,7 +4,7 @@ from typing import List
 import json
 import streamlit as st
 import io
-from invoice_parser.parser import Parser
+from parser import Parser
 
 	
 	
