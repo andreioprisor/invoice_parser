@@ -1,5 +1,5 @@
 pdfminer.six
-pymupdf==1.19.6  # Example with a specific version
+pymupdf
 Pillow
 pytesseract
 pdfplumber
