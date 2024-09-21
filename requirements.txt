@@ -1,0 +1,12 @@
+pdfminer.six
+pymupdf==1.19.6  # Example with a specific version
+Pillow
+pytesseract
+pdfplumber
+networkx
+matplotlib
+pandas
+scikit-learn
+numpy
+transformers
+torch
