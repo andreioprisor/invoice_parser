@@ -18,6 +18,7 @@ from collections import defaultdict
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from transformers import pipeline
 import torch
+import requests
 import re
 
 def horizontally_aligned(bbox1, bbox2, threshold):
@@ -224,21 +225,12 @@ class Parser:
 
 
 	def inference_llama(self, messages):
-		model_name = "unsloth/llama-3-8b-Instruct-bnb-4bit"
-		pipe = pipeline(
-			"text-generation",
-			model=model_name,
-			model_kwargs={"torch_dtype": torch.bfloat16},
-		)
-
-		outputs = pipe(
-			messages,
-			max_new_tokens=256,
-			do_sample=False,
-		)
-
-		assistant_response = outputs[0]["generated_text"][-1]["content"]
-		return assistant_response
+		# create a post request to the inference endpoint
+		url = "https://6332-2a02-2f0c-5610-1500-597a-a846-becc-cfb1.ngrok-free.app"
+		response = requests.post(url, json={"message": messages})
+		print(response.json())
+		return response.json()['response'][1]["content"]
+		
 	
 	def prompt_template(self, painted_string):
 		# prompt the user to select the template
@@ -290,7 +282,8 @@ class Parser:
 
 if __name__ == '__main__':
 	path = '/home/oda/freelance/santier/facturi/FacturaPDF-NrReg.pdf'
-	parser = Parser(path)
+	filestream = open(path, 'rb')
+	parser = Parser(filestream)
 	parser.parse()
 	
 	print(parser.response)
