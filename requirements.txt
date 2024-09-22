@@ -8,5 +8,4 @@ matplotlib
 pandas
 scikit-learn
 numpy
-transformers
-torch
+st_aggrid
