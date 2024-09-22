@@ -18,7 +18,10 @@ from collections import defaultdict
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from transformers import pipeline
 import torch
+<<<<<<< HEAD
 import requests
+=======
+>>>>>>> 8346fbc1300d0d45409599dabbea2d2b4dc231d9
 import re
 
 def horizontally_aligned(bbox1, bbox2, threshold):
@@ -225,12 +228,30 @@ class Parser:
 
 
 	def inference_llama(self, messages):
+<<<<<<< HEAD
 		# create a post request to the inference endpoint
 		url = "https://de06-2a02-2f0c-5610-1500-8416-d27f-1f9e-78e3.ngrok-free.app"
 		response = requests.post(url, json={"message": messages})
 		print(response)
 		return response.json()['response'][1]["content"]
 		
+=======
+		model_name = "unsloth/llama-3-8b-Instruct-bnb-4bit"
+		pipe = pipeline(
+			"text-generation",
+			model=model_name,
+			model_kwargs={"torch_dtype": torch.bfloat16},
+		)
+
+		outputs = pipe(
+			messages,
+			max_new_tokens=256,
+			do_sample=False,
+		)
+
+		assistant_response = outputs[0]["generated_text"][-1]["content"]
+		return assistant_response
+>>>>>>> 8346fbc1300d0d45409599dabbea2d2b4dc231d9
 	
 	def prompt_template(self, painted_string):
 		# prompt the user to select the template
@@ -239,7 +260,11 @@ class Parser:
                     - Numele vânzătorului/furnizorului/vendorului \
                     - Data emiterii facturii \
                     - Data scadenței facturii \
+<<<<<<< HEAD
                     - Lista de produse cu pretul aferent separate de o virgula \
+=======
+                    - Lista de produse cu prețuri și cantități \
+>>>>>>> 8346fbc1300d0d45409599dabbea2d2b4dc231d9
                     - Totalul de plată \
                    Afișează informațiile extrase în formatul următor: \
                     - beneficiar: [nume beneficiar] \
@@ -256,11 +281,15 @@ class Parser:
 	def extrage_date_factura(self):
 			# Dicționar pentru a stoca datele extrase
 		text = self.response
+<<<<<<< HEAD
 		print(text)
+=======
+>>>>>>> 8346fbc1300d0d45409599dabbea2d2b4dc231d9
 		date_factura = {}
 		
 		# Expresii regulate pentru a extrage fiecare câmp
 		patterns = {
+<<<<<<< HEAD
 			"beneficiar": "Client",
 			"vânzător": "Furnizor",
 			" vanz": "Furnizor",
@@ -269,12 +298,22 @@ class Parser:
 			" scaden": "Data Scadenta",
 			"produse": "Lista de produse",
 			"total": "Total"
+=======
+			"beneficiar",
+			"vânzător",
+			"vanzator",
+			" emiter",
+			" scaden",
+			"produse",
+			"total"
+>>>>>>> 8346fbc1300d0d45409599dabbea2d2b4dc231d9
 		}
 		
 		# Aplicăm fiecare expresie regulată pe text și stocăm rezultatele
 		lines = text.split("\n")
 
 		for line in lines:
+<<<<<<< HEAD
 			for key in patterns.keys():
 				if key in line.lower():
 					key = patterns[key]
@@ -307,6 +346,18 @@ if __name__ == '__main__':
 	path = '/home/oda/freelance/santier/facturi/FacturaPDF-NrReg.pdf'
 	filestream = open(path, 'rb')
 	parser = Parser(filestream)
+=======
+			for key in patterns:
+				if key in line.lower():
+					key = line.split(":")[0].strip()
+					value = line.split(":")[1].strip()
+					date_factura[key] = value
+		return date_factura
+
+if __name__ == '__main__':
+	path = '/home/oda/freelance/santier/facturi/FacturaPDF-NrReg.pdf'
+	parser = Parser(path)
+>>>>>>> 8346fbc1300d0d45409599dabbea2d2b4dc231d9
 	parser.parse()
 	
 	print(parser.response)
