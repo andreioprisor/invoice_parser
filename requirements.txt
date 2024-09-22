@@ -1,0 +1,12 @@
+pdfminer.six
+pymupdf
+Pillow
+pytesseract
+pdfplumber
+networkx
+matplotlib
+pandas
+scikit-learn
+numpy
+transformers
+torch
