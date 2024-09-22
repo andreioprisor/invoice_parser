@@ -8,4 +8,4 @@ matplotlib
 pandas
 scikit-learn
 numpy
-st_aggrid
+streamlit-aggrid
