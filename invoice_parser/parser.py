@@ -15,8 +15,6 @@ from sklearn.cluster import DBSCAN
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from collections import defaultdict
-from transformers import AutoTokenizer, AutoModelForCausalLM
-from transformers import pipeline
 import torch
 import requests
 import re
