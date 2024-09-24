@@ -15,7 +15,6 @@ from sklearn.cluster import DBSCAN
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from collections import defaultdict
-import torch
 import requests
 import re
 
