@@ -18,46 +18,17 @@ from collections import defaultdict
 import requests
 import re
 
-def horizontally_aligned(bbox1, bbox2, threshold):
-    # Check if the vertical centers are within the threshold
-    center1 = (bbox1[1] + bbox1[3]) / 2
-    center2 = (bbox2[1] + bbox2[3]) / 2
-    return abs(center1 - center2)
+# def horizontally_aligned(bbox1, bbox2, threshold):
+#     # Check if the vertical centers are within the threshold
+#     center1 = (bbox1[1] + bbox1[3]) / 2
+#     center2 = (bbox2[1] + bbox2[3]) / 2
+#     return abs(center1 - center2)
 
-def vertically_aligned(bbox1, bbox2, threshold):
-    # Check if the horizontal centers are within the threshold
-    center1 = (bbox1[0] + bbox1[2]) / 2
-    center2 = (bbox2[0] + bbox2[2]) / 2
-    return abs(center1 - center2)
-
-def plot_graph_with_text(G):
-    pos = {}  # Position map for nodes
-    node_labels = {}  # Labels for each node
-    edge_colors = []  # Colors for edges based on type
-
-    # Calculate positions and prepare labels
-    for node, data in G.nodes(data=True):
-        bbox = node[1]  # Extract bbox stored in node
-        # Calculate the position based on bbox center
-        pos[node] = ((bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2)
-        # Prepare text, limit length if necessary
-        text = data.get('text', '')[0:50]  # Show only first 50 characters if needed
-        node_labels[node] = text
-
-    # Define colors based on edge type
-    for u, v, data in G.edges(data=True):
-        if data['type'] == 'vertical':
-            edge_colors.append('red')
-        else:
-            edge_colors.append('blue')
-
-    # Draw the graph
-    plt.figure(figsize=(12, 8))  # Set a larger figure size
-    nx.draw(G, pos, edge_color=edge_colors, with_labels=False, node_color='lightgreen', node_size=3000, alpha=0.6)
-    nx.draw_networkx_labels(G, pos, labels=node_labels, font_size=8)  # Adjust font size as needed
-
-    plt.title('PDF Layout Graph with Text')
-    plt.show()
+# def vertically_aligned(bbox1, bbox2, threshold):
+#     # Check if the horizontal centers are within the threshold
+#     center1 = (bbox1[0] + bbox1[2]) / 2
+#     center2 = (bbox2[0] + bbox2[2]) / 2
+#     return abs(center1 - center2)
 
 class Parser:
 	def __init__(self, file):
@@ -75,60 +46,60 @@ class Parser:
 		self.response = None
 		# self.type = 'img' if self.path.endswith('.jpg') or self.path.endswith('.png') else 'pdf'
 
-	def is_image_based_pdf(self):
-		with open(self.path, 'rb') as f:
-			parser = PDFParser(f)
-			doc = PDFDocument(parser)
-			if not doc.is_extractable:
-				return True  # Text extraction is not allowed; likely image-based
-			else:
-				return False  # Text extraction is allowed; likely text-based
+	# def is_image_based_pdf(self):
+	# 	with open(self.path, 'rb') as f:
+	# 		parser = PDFParser(f)
+	# 		doc = PDFDocument(parser)
+	# 		if not doc.is_extractable:
+	# 			return True  # Text extraction is not allowed; likely image-based
+	# 		else:
+	# 			return False  # Text extraction is allowed; likely text-based
 
 
-	def build_graph(self, df):
-		# Initialize the graph
-		G = nx.Graph()
-		count = 0
-		last_cluster = None  # Initialize last_cluster to None before the loop
-		df.sort_values(by='vertical_cluster', inplace=True)
-		df.reset_index(drop=True, inplace=True)
-		df['index'] = df.index
+	# def build_graph(self, df):
+	# 	# Initialize the graph
+	# 	G = nx.Graph()
+	# 	count = 0
+	# 	last_cluster = None  # Initialize last_cluster to None before the loop
+	# 	df.sort_values(by='vertical_cluster', inplace=True)
+	# 	df.reset_index(drop=True, inplace=True)
+	# 	df['index'] = df.index
 
 
-		horizontal_clusters = df.groupby('horizontal_cluster').agg(
-			{ 
-				'index': lambda x: list(x),
-			}
-		)
+	# 	horizontal_clusters = df.groupby('horizontal_cluster').agg(
+	# 		{ 
+	# 			'index': lambda x: list(x),
+	# 		}
+	# 	)
 		
-		# Add nodes for each element in the DataFrame
-		for index, row in df.iterrows():
-			current_cluster = row['vertical_cluster']
-			horizontal_cluster = row['horizontal_cluster']
-			count += 1
-			node_tuple = (row['x_left'], row['y_bottom'], row['vertical_cluster'], row['horizontal_cluster'], row['text'])
-			G.add_node(index, node=node_tuple)
-			if last_cluster == current_cluster and index > 0:
-				G.add_edge(index, index - 1, weight=1)
-			last_cluster = current_cluster
+	# 	# Add nodes for each element in the DataFrame
+	# 	for index, row in df.iterrows():
+	# 		current_cluster = row['vertical_cluster']
+	# 		horizontal_cluster = row['horizontal_cluster']
+	# 		count += 1
+	# 		node_tuple = (row['x_left'], row['y_bottom'], row['vertical_cluster'], row['horizontal_cluster'], row['text'])
+	# 		G.add_node(index, node=node_tuple)
+	# 		if last_cluster == current_cluster and index > 0:
+	# 			G.add_edge(index, index - 1, weight=1)
+	# 		last_cluster = current_cluster
 
-		for cluster in horizontal_clusters['index']:
-			for i in range(len(cluster) - 1):
-				G.add_edge(cluster[i], cluster[i + 1], weight=0)
+	# 	for cluster in horizontal_clusters['index']:
+	# 		for i in range(len(cluster) - 1):
+	# 			G.add_edge(cluster[i], cluster[i + 1], weight=0)
 
-		print("Total elements processed:", count)
-		return G
+	# 	print("Total elements processed:", count)
+	# 	return G
 	
-	def dfs_horizontal(self,G, node, visited):
-		""" Perform DFS on horizontal edges (edges with weight 0). """
-		visited.add(node)
-		# print(f"{G.nodes[node]['node']} --- ", end=" ")  # Print the node information
+	# def dfs_horizontal(self,G, node, visited):
+	# 	""" Perform DFS on horizontal edges (edges with weight 0). """
+	# 	visited.add(node)
+	# 	# print(f"{G.nodes[node]['node']} --- ", end=" ")  # Print the node information
 		
-		# Traverse all neighbors of the current node
-		for neighbor in G.neighbors(node):
-			# Check if the edge is a horizontal edge (weight == 0)
-			if G.get_edge_data(node, neighbor)['weight'] == 0 and neighbor not in visited:
-				self.dfs_horizontal(G, neighbor, visited)  # Recursively visit the neighbor
+	# 	# Traverse all neighbors of the current node
+	# 	for neighbor in G.neighbors(node):
+	# 		# Check if the edge is a horizontal edge (weight == 0)
+	# 		if G.get_edge_data(node, neighbor)['weight'] == 0 and neighbor not in visited:
+	# 			self.dfs_horizontal(G, neighbor, visited)  # Recursively visit the neighbor
 
 
 	def extract_text_pdf(self):
