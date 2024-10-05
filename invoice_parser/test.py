@@ -16,6 +16,8 @@ if 'table' not in st.session_state:
     # add a test row
 if 'anaf_table' not in st.session_state:
     st.session_state.anaf_table = pd.DataFrame(columns=columns)
+    # add a conformity column
+    st.session_state.anaf_table['Conformitate'] = 'necalculat'
 
 st.title('Produse Proforma')
 gb = GridOptionsBuilder.from_dataframe(st.session_state.table)
@@ -126,7 +128,7 @@ if st.session_state['show_buttons_anaf']:
                         data = pd.DataFrame(data, columns=columns)
                         print(data)
                         st.session_state.add_button_anaf = True
-                        st.session_state.table = pd.concat([st.session_state.table, data], ignore_index=True)
+                        st.session_state.anaf_table = pd.concat([st.session_state.anaf_table, data], ignore_index=True)
                         st.success('Invoice parsed successfully!')
                 else:
                     st.error('Please upload a PDF invoice file to continue.')
@@ -141,6 +143,35 @@ if st.session_state['show_buttons_anaf']:
                 del st.session_state.uploaded_file
             st.rerun()
 
+
 if st.button('Reseteaza tabela eFactura', type='primary'):
     # your code here
-    st.warning('Are you sure you want to reset the table?')
+    st.session_state.anaf_table = pd.DataFrame(columns=columns)
+    st.rerun()
+
+
+if st.button('Verifica conformitatea', type='primary'):
+    # your code here
+    df_proforma = st.session_state.table
+    df_anaf = st.session_state.anaf_table
+
+    df_proforma.sort_values(by='Nume produs', inplace=True)
+    df_proforma.reset_index(drop=True, inplace=True)
+    
+    df_anaf.sort_values(by='Nume produs', inplace=True)
+    df_anaf.reset_index(drop=True, inplace=True)
+
+    # join the two dataframes and keep from anaf only 'pret unitar', 'tva', 'cantitate'
+    df = pd.merge(df_anaf, df_proforma[['Nume produs', 'Pret unitar', 'Total', 'Cantitate']], on='Nume produs', how='inner')
+    df['Conformitate'] = df.apply(lambda x: 1 if x['Pret unitar_x'] == x['Pret unitar_y'] else 0 if x['Pret unitar_x'] is None or x['Pret unitar_x'] is None else -1, axis=1)
+    print(df['Conformitate'])
+    # update the anaf table with a checkmark for conformity and an x for non-conformity
+    df_anaf['Conformitate'] = df['Conformitate']
+    df_anaf['Conformitate'] = df_anaf['Conformitate'].apply(lambda x: 'conform' if x == 1 else 'neconform' if x == 0 else 'necalculat')
+    st.write(df['Conformitate'])
+    print(df['Conformitate'])
+    st.session_state.anaf_table = df_anaf
+    st.rerun()
+
+            
+
