@@ -194,7 +194,7 @@ class Parser:
 
 	def inference_llama(self, messages):
 		# create a post request to the inference endpoint
-		url = "https://2681-2a02-2f0c-5610-1500-cad-966e-7e71-5ec2.ngrok-free.app"
+		url = "https://d561-2a02-2f0c-5610-1500-c66d-ebc4-c967-3d0e.ngrok-free.app"
 		response = requests.post(url, json={"message": messages})
 		print(response)
 		return response.json()['response'][1]["content"]
